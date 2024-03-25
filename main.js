@@ -3,7 +3,7 @@ const path = require('path');
 
 class TransactionAnalyzer{
    
-    mySet = new Set();
+    //mySet = new Set(); -- вдруг что раскоменить если рабоатаь не будет
     parsedData = []
     /**
      * Коснтруткор для сохрания транзакий в отедельную переменную
@@ -21,6 +21,32 @@ class TransactionAnalyzer{
             console.error("Error for reading file")
             this.parsedData = null
         }
+    }
+    /**
+     * Добавялем новую транзакцию 
+     */
+    addTransaction(){
+        let newTransaction = {};
+    
+        newTransaction.transaction_id = this.parsedData.length + 1; 
+        newTransaction.transaction_date = prompt("Введите дату транзакции (гггг-мм-дд): ");
+        newTransaction.transaction_amount = parseFloat(prompt("Введите сумму транзакции: "));
+        newTransaction.transaction_type = prompt("Введите тип транзакции (debit/credit): ");
+        newTransaction.transaction_description = prompt("Введите описание транзакции: ");
+        newTransaction.merchant_name = prompt("Введите название магазина: ");
+        newTransaction.card_type = prompt("Введите тип карты: ");
+        
+        this.parsedData.push(newTransaction)
+        // Вывод созданной транзакции
+        console.log("Новая транзакция:", newTransaction);
+            
+    }
+    /**
+     * 
+     * @returns Возвращает массив со всеми транзакциями
+     */
+    getAllTransaction(){
+        return this.parsedData
     }
     /**
      * 
@@ -400,6 +426,7 @@ class TransactionAnalyzer{
         }
         return desciptionArray;
     }
+    
 
 
 }
@@ -407,13 +434,13 @@ class TransactionAnalyzer{
 
 
 const filePath = "transaction.json"
-
 const transactions = new TransactionAnalyzer(filePath)
-console.log(transactions.parsedData.length)
 
 
 
 
+
+// Некоторые заметки - неважная информация
 // --запись
 // Преобразование объекта JavaScript в JSON-строку
 //const updatedFileData = JSON.stringify(transactions, null, 2); 

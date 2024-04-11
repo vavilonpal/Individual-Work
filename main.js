@@ -3,7 +3,6 @@ const path = require('path');
 
 class TransactionAnalyzer {
 
-    //mySet = new Set(); -- вдруг что раскоменить если рабоатаь не будет
     parsedData = []
     /**
      * Коснтруткор для сохрания транзакий в отедельную переменную
@@ -12,11 +11,9 @@ class TransactionAnalyzer {
      */
     constructor(filePath) {
         try {
-            //Считываем файл
             const fileData = fs.readFileSync(filePath, 'utf-8')
             this.parsedData = JSON.parse(fileData)
 
-            //Сохраняем в обьект значение null  при некоректном парсинге .json файла
         } catch (error) {
             console.error("Error for reading file")
             this.parsedData = null
@@ -37,7 +34,6 @@ class TransactionAnalyzer {
         newTransaction.card_type = prompt("Введите тип карты: ");
 
         this.parsedData.push(newTransaction)
-        // Вывод созданной транзакции
         console.log("Новая транзакция:", newTransaction);
 
     }
@@ -46,6 +42,9 @@ class TransactionAnalyzer {
      * @returns Возвращает массив со всеми транзакциями
      */
     getAllTransaction() {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
         return this.parsedData
     }
     /**
@@ -59,8 +58,9 @@ class TransactionAnalyzer {
 
     getUniqueTransactionType() {
         const uniqueTransactionTypes = new Set();
-
-
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
         for (const transaction of this.parsedData) {
             uniqueTransactionTypes.add(transaction.transaction_type);
         }
@@ -75,19 +75,17 @@ class TransactionAnalyzer {
     // 
     calculateTotalAmount() {
         let totalAmount = 0
-        // Проверка на наличие элементов внутри массива транзакций
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 totalAmount = totalAmount + transaction.transaction_amount;
             }
-        }
         return totalAmount;
     }
     /**
      * @description
-        1. Вычисляет общую сумму транзакций за указанный год, месяц и день.
-        2. Параметры year, month и day являются необязательными.
-        3. В случае отсутствия одного из параметров, метод производит расчет по остальным.
+        
      * @param {int} year 
      * @param {int} month 
      * @param {int} day 
@@ -105,7 +103,7 @@ class TransactionAnalyzer {
             const transactionDate = new Date(transaction.transaction_date);
             if (
                 (year === undefined || transactionDate.getFullYear() === year) &&
-                (month === undefined || transactionDate.getMonth() + 1 === month) && // Месяцы в JS начинаются с 0
+                (month === undefined || transactionDate.getMonth() + 1 === month) && 
                 (day === undefined || transactionDate.getDate() === day)
             ) {
                 totalAmount += transaction.transaction_amount;
@@ -122,13 +120,15 @@ class TransactionAnalyzer {
     getTransactionByType(type) {
         const transactionByTypes = new Set();
 
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 if (transaction.transaction_type == type) {
                     transactionByTypes.add(transaction);
                 }
             }
-        }
+        
         return transactionByTypes
     }
     /**
@@ -143,26 +143,26 @@ class TransactionAnalyzer {
     getTransactionsInDateRange(startDate, endDate) {
         const transactionByDate = new Set();
 
-        //1.С помощью метода .replace(/-/g, '') удаляем тире между числами
-        //2. Преобразуем даты в числовой формат
+       
         let firstDate = parseInt(startDate.replace(/-/g, ''));
         let secondDate = parseInt(endDate.replace(/-/g, ''));
 
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
-            //Первая дата должна быть меньше второй, чтобы перебор работал 
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
+     
             if (firstDate < secondDate) {
                 for (const transaction of this.parsedData) {
-                    // Сохраняем дату текущей транзакции и преобразуем её в число
+                   
                     let currentDate = parseInt(transaction.transaction_date.replace(/-/g, ''));
-                    //Добавялем в массив только те транзакции, временной промежуток которых
-                    //удовлетворяет нашему условию
+         
                     if (currentDate >= firstDate && currentDate <= secondDate) {
                         transactionByDate.add(transaction)
                     }
                 }
             }
             else return console.log("Некоректо введены значения дат")
-        }
+        
         return transactionByDate
     }
     /**
@@ -172,13 +172,14 @@ class TransactionAnalyzer {
      */
     getTransactionsByMerchant(merchantName) {
         transactionsByMerchantName = new Set();
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 if (merchantName == transaction.merchant_name) {
                     transactionsByMerchantName.add(transaction);
                 }
             }
-        }
         return transactionsByMerchantName
 
     }
@@ -189,12 +190,13 @@ class TransactionAnalyzer {
     calculateAverageTransactionAmount() {
         let totalAmount = 0
         let counter = this.parsedData.length
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
-                //Cчитаем сумму значений транзакций
                 totalAmount = totalAmount + transaction.transaction_amount;
             }
-        }
+        
         return totalAmount / counter;
 
     }
@@ -211,7 +213,6 @@ class TransactionAnalyzer {
             return console.log("Введены неправиильные значения сумм")
         }
 
-        // Метод выполняется только в случае если конечное значение сумм больше начального
         if (maxAmount > minAmount) {
             for (const transaction of this.parsedData) {
                 if (transaction.transaction_amount >= minAmount && transaction.transaction_amount <= maxAmount) {
@@ -228,13 +229,15 @@ class TransactionAnalyzer {
      */
     calculateTotalDebitAmount() {
         let debitAmount = 0
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 if (transaction.transaction_type == "debit") {
                     debitAmount = debitAmount + transaction.transaction_amount
                 }
             }
-        }
+        
         return debitAmount;
     }
     /**
@@ -261,33 +264,24 @@ class TransactionAnalyzer {
             "11": ["November", 0],
             "12": ["December", 0]
         }
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
-                //создаём массив, в котором первое значение это год, второе месяц, а третье день
                 let dateArray = transaction.transaction_date.split("-");
-                //далее номер месяца передаём как ключ, тем самым обращаясь к опред.значению 
-                // и увеличивая его на 1, в monthDictionary
-                // то есть мы для каждого месяца считаем кол-во транзакций
+           
                 monthDictionary[dateArray[1]][1] = monthDictionary[dateArray[1]][1] + 1;
             }
-            // Переменная которая нужна для перечисления словаря monthDictionary
             let monthArray = Object.entries(monthDictionary);
-            // Сортируем массив по второму элементу вложенных списков         
             monthArray.sort((a, b) => a[1][1] - b[1][1]);
-            // Цикл, который начинается с конца массива и идет до его начала.
             for (let i = monthArray.length - 1; i >= 0; i--) {
-                //Проверяем не равен ли текущий элемент предедущему элементу
-                // по второму значению во вложенном массиве
                 if (monthArray[i][1][1] != monthArray[i - 1][1][1]) {
-                    // При срабатывании условия, удаляем все элементы, которые не равны большему элементу и выходим из цикла
-                    // Если текущий элемент равен, то тогда он остаётся в массиве и мы можем
-                    // получить два месяца с одинаковым кол-вом транзакций
                     monthArray.splice(0, i);
                     break;
                 }
             }
             return monthArray
-        }
+        
     }
     /**
      * @description Возвращает месяц, в котором было больше дебетовых транзакций.
@@ -312,38 +306,29 @@ class TransactionAnalyzer {
             "11": ["November", 0],
             "12": ["December", 0]
         }
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 if (transaction.transaction_type == "debit") {
-                    //создаём массив, в котором первое значение это год, второе месяц, а третье день
                     let dateArray = transaction.transaction_date.split("-");
-                    //далее месяц передаём как ключ, тем самым обращаясь к опред.значению 
-                    // и увеличивая его на 1, в monthDictionary
-                    // то есть мы для каждого месяца считаем кол-во транзакций
                     monthDictionary[dateArray[1]][1] = monthDictionary[dateArray[1]][1] + 1;
                 }
 
 
             }
-            // Переменная которая нужна для перечисления словаря monthDictionary
             let monthArray = Object.entries(monthDictionary);
-            // Сортируем массив по второму элементу вложенных списков         
             monthArray.sort((a, b) => a[1][1] - b[1][1]);
             console.log(monthArray)
             for (let i = monthArray.length - 1; i >= 0; i--) {
-                //Проверяем не равен ли текущий элемент предедущему элементу
-                // по второму значению во вложенном массиве
                 if (monthArray[i][1][1] != monthArray[i - 1][1][1]) {
-                    // При срабатывании условия, удаляем все элементы, которые не равны большему элементу и выходим из цикла
-                    // Если текущий элемент равен, то тогда он остаётся в массиве и мы можем
-                    // получить два месяца с одинаковым кол-вом транзакций
                     monthArray.splice(0, i);
                     break;
 
                 }
             }
             return monthArray
-        }
+        
     }
     /**
      * @returns
@@ -354,12 +339,12 @@ class TransactionAnalyzer {
      * 
      */
     mostTransactionTypes() {
-        //Массив котором будет считаться кол-во дебитовых и кредитовых транзакций   
-        // Первый элемент массива это кол-во дебитовых а второй кредитовых
+        
         let cardsArray = [0, 0];
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
-                //Сортировка в массив по критериям дебит и кредит
                 if (transaction.transaction_type == "debit") {
                     cardsArray[0] = cardsArray[0] + 1;
                 }
@@ -367,7 +352,6 @@ class TransactionAnalyzer {
                     cardsArray[1] = cardsArray[1] + 1;
                 }
             }
-            //Проверка на колчество карт
             if (cardsArray[0] > cardsArray[1]) {
                 return "debit"
             }
@@ -377,7 +361,7 @@ class TransactionAnalyzer {
             else if (cardsArray[0] == cardsArray[1]) {
                 return "equals"
             }
-        }
+        
     }
     /**
      * @description Возвращает транзакции, совершенные до указанной даты.
@@ -390,19 +374,18 @@ class TransactionAnalyzer {
         let transactionBeforeDate = new Set()
         let finalDate = parseInt(date.replace(/-/g, ''));
 
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
 
             for (const transaction of this.parsedData) {
-                // Сохраняем дату текущей транзакции и преобразуем её в число
                 let currentDate = parseInt(transaction.transaction_date.replace(/-/g, ''));
-                //Добавялем в массив только те транзакции, временной промежуток которых
-                //удовлетворяет нашему условию
                 if (currentDate < finalDate) {
                     transactionBeforeDate.add(transaction)
                 }
                 else return console.log("Некоректо введены значения даты")
             }
-        }
+        
         return transactionBeforeDate;
 
     }
@@ -420,12 +403,14 @@ class TransactionAnalyzer {
      */
     mapTransactionDescriptions() {
         const desciptionArray = new Set();
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
             for (const transaction of this.parsedData) {
                 desciptionArray.push(transaction.transaction_description)
 
             }
-        }
+        
         return desciptionArray;
     }
 
@@ -437,14 +422,3 @@ class TransactionAnalyzer {
 
 const filePath = "transaction.json"
 const transactions = new TransactionAnalyzer(filePath)
-
-
-
-
-
-// Некоторые заметки - неважная информация
-// --запись
-// Преобразование объекта JavaScript в JSON-строку
-//const updatedFileData = JSON.stringify(transactions, null, 2);
-//Запись обновленной JSON-строки обратно в файл
-//fs.writeFileSync(filePath, updatedFileData, 'utf-8');

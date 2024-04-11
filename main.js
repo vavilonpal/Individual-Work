@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-class TransactionAnalyzer{
-   
+class TransactionAnalyzer {
+
     //mySet = new Set(); -- вдруг что раскоменить если рабоатаь не будет
     parsedData = []
     /**
@@ -10,14 +10,14 @@ class TransactionAnalyzer{
      * @param {path} filePath - передаём ссылку на файл транзакций
      * @description Cохраенние тразнакций в параметр parsedData
      */
-    constructor(filePath){
-        try{
+    constructor(filePath) {
+        try {
             //Считываем файл
             const fileData = fs.readFileSync(filePath, 'utf-8')
             this.parsedData = JSON.parse(fileData)
-           
-        //Сохраняем в обьект значение null  при некоректном парсинге .json файла
-        }catch(error){
+
+            //Сохраняем в обьект значение null  при некоректном парсинге .json файла
+        } catch (error) {
             console.error("Error for reading file")
             this.parsedData = null
         }
@@ -25,27 +25,27 @@ class TransactionAnalyzer{
     /**
      * Добавялем новую транзакцию 
      */
-    addTransaction(){
+    addTransaction() {
         let newTransaction = {};
-    
-        newTransaction.transaction_id = this.parsedData.length + 1; 
+
+        newTransaction.transaction_id = this.parsedData.length + 1;
         newTransaction.transaction_date = prompt("Введите дату транзакции (гггг-мм-дд): ");
         newTransaction.transaction_amount = parseFloat(prompt("Введите сумму транзакции: "));
         newTransaction.transaction_type = prompt("Введите тип транзакции (debit/credit): ");
         newTransaction.transaction_description = prompt("Введите описание транзакции: ");
         newTransaction.merchant_name = prompt("Введите название магазина: ");
         newTransaction.card_type = prompt("Введите тип карты: ");
-        
+
         this.parsedData.push(newTransaction)
         // Вывод созданной транзакции
         console.log("Новая транзакция:", newTransaction);
-            
+
     }
     /**
      * 
      * @returns Возвращает массив со всеми транзакциями
      */
-    getAllTransaction(){
+    getAllTransaction() {
         return this.parsedData
     }
     /**
@@ -56,24 +56,24 @@ class TransactionAnalyzer{
      * getUniqueTransactionType() =>
      * ['debit', 'credit']
      */
-    
+
     getUniqueTransactionType() {
         const uniqueTransactionTypes = new Set();
-    
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
-            for (const transaction of this.parsedData) {
-                uniqueTransactionTypes.add(transaction.transaction_type);
-            }
+
+
+        for (const transaction of this.parsedData) {
+            uniqueTransactionTypes.add(transaction.transaction_type);
         }
-    
+
+
         return uniqueTransactionTypes;
     }
     /**
-     * @description 2) Рассчитывает общую сумму всех транзакций
-     * @returns {int} Возвращает общую сумму всех транзакций
+     * @description  Рассчитывает общую сумму всех транзакций
+     * @returns {number}  общая сумма всех транзакций
      */
     // 
-    calculateTotalAmount(){
+    calculateTotalAmount() {
         let totalAmount = 0
         // Проверка на наличие элементов внутри массива транзакций
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
@@ -119,12 +119,12 @@ class TransactionAnalyzer{
      * @param {string} type - передаваемый тип кари
      * @returns {Array} Возвращает массив транзакий указанного типа
      */
-    getTransactionByType(type){
+    getTransactionByType(type) {
         const transactionByTypes = new Set();
 
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
-                if(transaction.transaction_type == type){
+                if (transaction.transaction_type == type) {
                     transactionByTypes.add(transaction);
                 }
             }
@@ -140,23 +140,23 @@ class TransactionAnalyzer{
      * Пример вводимых параметров
      * getTransactionsInDateRange("2019-01-09", "2019-2-09")
      */
-    getTransactionsInDateRange(startDate, endDate){
+    getTransactionsInDateRange(startDate, endDate) {
         const transactionByDate = new Set();
 
         //1.С помощью метода .replace(/-/g, '') удаляем тире между числами
         //2. Преобразуем даты в числовой формат
-        let firstDate = parseInt(startDate.replace(/-/g, ''));  
+        let firstDate = parseInt(startDate.replace(/-/g, ''));
         let secondDate = parseInt(endDate.replace(/-/g, ''));
 
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             //Первая дата должна быть меньше второй, чтобы перебор работал 
-            if(firstDate < secondDate){
+            if (firstDate < secondDate) {
                 for (const transaction of this.parsedData) {
                     // Сохраняем дату текущей транзакции и преобразуем её в число
                     let currentDate = parseInt(transaction.transaction_date.replace(/-/g, ''));
                     //Добавялем в массив только те транзакции, временной промежуток которых
                     //удовлетворяет нашему условию
-                    if( currentDate >= firstDate && currentDate <= secondDate){
+                    if (currentDate >= firstDate && currentDate <= secondDate) {
                         transactionByDate.add(transaction)
                     }
                 }
@@ -170,23 +170,23 @@ class TransactionAnalyzer{
      * @param {string} merchantName - параметр с названиеем торгового места или компании
      * @returns {Array} Возврашает массив транзакций с указанным торговым местом или компанией
      */
-    getTransactionsByMerchant(merchantName){
+    getTransactionsByMerchant(merchantName) {
         transactionsByMerchantName = new Set();
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
-                if(merchantName == transaction.merchant_name){
+                if (merchantName == transaction.merchant_name) {
                     transactionsByMerchantName.add(transaction);
                 }
             }
         }
         return transactionsByMerchantName
-        
+
     }
     /**
      * @description Возвращает среднее значение транзакций.
      * @returns {int} Среднее значение транзакций
      */
-    calculateAverageTransactionAmount(){
+    calculateAverageTransactionAmount() {
         let totalAmount = 0
         let counter = this.parsedData.length
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
@@ -204,32 +204,34 @@ class TransactionAnalyzer{
      * @param {int} maxAmount - Конечный диапозон суммы
      * @returns {array} Массив транзакций в диапозоне указанных сумм
      */
-    getTransactionsByAmountRange(minAmount, maxAmount){
+    getTransactionsByAmountRange(minAmount, maxAmount) {
         const transactionByAmount = new Set();
 
-        if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
-            // Метод выполняется только в случае если конечное значение сумм больше начального
-            if(maxAmount > minAmount){
-                for (const transaction of this.parsedData) {
-                    if(transaction.transaction_amount >= minAmount && transaction.transaction_amount <= maxAmount){
-                        transactionByAmount.add(transaction)
-                    }
+        if (!(Array.isArray(this.parsedData) && this.parsedData.length > 0)) {
+            return console.log("Введены неправиильные значения сумм")
+        }
+
+        // Метод выполняется только в случае если конечное значение сумм больше начального
+        if (maxAmount > minAmount) {
+            for (const transaction of this.parsedData) {
+                if (transaction.transaction_amount >= minAmount && transaction.transaction_amount <= maxAmount) {
+                    transactionByAmount.add(transaction)
                 }
             }
-            else return console.log("Введены неправиильные значения сумм")
         }
+
         return transactionByAmount;
     }
     /**
      * @description Вычисляет общую сумму дебетовых транзакций.
      * @returns {int} Сумму всех депитовых транзакций.
      */
-    calculateTotalDebitAmount(){
+    calculateTotalDebitAmount() {
         let debitAmount = 0
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
-                if(transaction.transaction_type == "debit"){
-                   debitAmount = debitAmount + transaction.transaction_amount 
+                if (transaction.transaction_type == "debit") {
+                    debitAmount = debitAmount + transaction.transaction_amount
                 }
             }
         }
@@ -244,29 +246,29 @@ class TransactionAnalyzer{
      *  'Januray'-название
      *  31 - количесто транзакций с этим месяцом
      */
-    findMostTransactionsMonth(){
+    findMostTransactionsMonth() {
         const monthDictionary = {
-            "01":["Januray", 0],
-            "02":["February",0],
-            "03":["March",0],
-            "04":["April",0],
-            "05":["May",0],
-            "06":["June",0],
-            "07":["July",0],
-            "08":["August",0],
-            "09":["Sebtember",0],
-            "10":["October",0],
-            "11":["November",0],
-            "12":["December",0]
+            "01": ["Januray", 0],
+            "02": ["February", 0],
+            "03": ["March", 0],
+            "04": ["April", 0],
+            "05": ["May", 0],
+            "06": ["June", 0],
+            "07": ["July", 0],
+            "08": ["August", 0],
+            "09": ["Sebtember", 0],
+            "10": ["October", 0],
+            "11": ["November", 0],
+            "12": ["December", 0]
         }
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
                 //создаём массив, в котором первое значение это год, второе месяц, а третье день
                 let dateArray = transaction.transaction_date.split("-");
-                //далее месяц передаём как ключ, тем самым обращаясь к опред.значению 
+                //далее номер месяца передаём как ключ, тем самым обращаясь к опред.значению 
                 // и увеличивая его на 1, в monthDictionary
                 // то есть мы для каждого месяца считаем кол-во транзакций
-                monthDictionary[dateArray[1]][1] = monthDictionary[dateArray[1]][1] + 1;      
+                monthDictionary[dateArray[1]][1] = monthDictionary[dateArray[1]][1] + 1;
             }
             // Переменная которая нужна для перечисления словаря monthDictionary
             let monthArray = Object.entries(monthDictionary);
@@ -276,15 +278,15 @@ class TransactionAnalyzer{
             for (let i = monthArray.length - 1; i >= 0; i--) {
                 //Проверяем не равен ли текущий элемент предедущему элементу
                 // по второму значению во вложенном массиве
-                if(monthArray[i][1][1] != monthArray[i-1][1][1]){
+                if (monthArray[i][1][1] != monthArray[i - 1][1][1]) {
                     // При срабатывании условия, удаляем все элементы, которые не равны большему элементу и выходим из цикла
                     // Если текущий элемент равен, то тогда он остаётся в массиве и мы можем
                     // получить два месяца с одинаковым кол-вом транзакций
-                    monthArray.splice(0,i);
+                    monthArray.splice(0, i);
                     break;
                 }
             }
-            return monthArray            
+            return monthArray
         }
     }
     /**
@@ -295,24 +297,24 @@ class TransactionAnalyzer{
      * 'March'-название
      *  24 - кол-во дебитовых транзакций в данном месяце
      */
-    findMostDebitTransactionMonth(){
+    findMostDebitTransactionMonth() {
         const monthDictionary = {
-            "01":["Januray", 0],
-            "02":["February",0],
-            "03":["March",0],
-            "04":["April",0],
-            "05":["May",0],
-            "06":["June",0],
-            "07":["July",0],
-            "08":["August",0],
-            "09":["Sebtember",0],
-            "10":["October",0],
-            "11":["November",0],
-            "12":["December",0]
+            "01": ["Januray", 0],
+            "02": ["February", 0],
+            "03": ["March", 0],
+            "04": ["April", 0],
+            "05": ["May", 0],
+            "06": ["June", 0],
+            "07": ["July", 0],
+            "08": ["August", 0],
+            "09": ["Sebtember", 0],
+            "10": ["October", 0],
+            "11": ["November", 0],
+            "12": ["December", 0]
         }
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
-                if(transaction.transaction_type == "debit"){
+                if (transaction.transaction_type == "debit") {
                     //создаём массив, в котором первое значение это год, второе месяц, а третье день
                     let dateArray = transaction.transaction_date.split("-");
                     //далее месяц передаём как ключ, тем самым обращаясь к опред.значению 
@@ -320,8 +322,8 @@ class TransactionAnalyzer{
                     // то есть мы для каждого месяца считаем кол-во транзакций
                     monthDictionary[dateArray[1]][1] = monthDictionary[dateArray[1]][1] + 1;
                 }
-                
-                
+
+
             }
             // Переменная которая нужна для перечисления словаря monthDictionary
             let monthArray = Object.entries(monthDictionary);
@@ -331,13 +333,13 @@ class TransactionAnalyzer{
             for (let i = monthArray.length - 1; i >= 0; i--) {
                 //Проверяем не равен ли текущий элемент предедущему элементу
                 // по второму значению во вложенном массиве
-                if(monthArray[i][1][1] != monthArray[i-1][1][1]){
+                if (monthArray[i][1][1] != monthArray[i - 1][1][1]) {
                     // При срабатывании условия, удаляем все элементы, которые не равны большему элементу и выходим из цикла
                     // Если текущий элемент равен, то тогда он остаётся в массиве и мы можем
                     // получить два месяца с одинаковым кол-вом транзакций
-                    monthArray.splice(0,i);
+                    monthArray.splice(0, i);
                     break;
-                    
+
                 }
             }
             return monthArray
@@ -351,28 +353,28 @@ class TransactionAnalyzer{
         4. Возвращает `equal`, если количество равно.
      * 
      */
-    mostTransactionTypes(){
+    mostTransactionTypes() {
         //Массив котором будет считаться кол-во дебитовых и кредитовых транзакций   
         // Первый элемент массива это кол-во дебитовых а второй кредитовых
-        let cardsArray = [0,0];
+        let cardsArray = [0, 0];
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
                 //Сортировка в массив по критериям дебит и кредит
-                if(transaction.transaction_type == "debit"){
-                    cardsArray[0] = cardsArray[0] + 1; 
+                if (transaction.transaction_type == "debit") {
+                    cardsArray[0] = cardsArray[0] + 1;
                 }
-                else if(transaction.transaction_type == "credit"){
+                else if (transaction.transaction_type == "credit") {
                     cardsArray[1] = cardsArray[1] + 1;
                 }
             }
             //Проверка на колчество карт
-            if(cardsArray[0]> cardsArray[1]){
+            if (cardsArray[0] > cardsArray[1]) {
                 return "debit"
             }
-            else if(cardsArray[0] < cardsArray[1]){
+            else if (cardsArray[0] < cardsArray[1]) {
                 return "credit"
             }
-            else if(cardsArray[0] == cardsArray[1]){
+            else if (cardsArray[0] == cardsArray[1]) {
                 return "equals"
             }
         }
@@ -384,7 +386,7 @@ class TransactionAnalyzer{
      * 
      * @returns {array} - возвращает массив транзакций до определнноц даты
      */
-    getTransactionsBeforeDate(date){
+    getTransactionsBeforeDate(date) {
         let transactionBeforeDate = new Set()
         let finalDate = parseInt(date.replace(/-/g, ''));
 
@@ -394,39 +396,39 @@ class TransactionAnalyzer{
                 // Сохраняем дату текущей транзакции и преобразуем её в число
                 let currentDate = parseInt(transaction.transaction_date.replace(/-/g, ''));
                 //Добавялем в массив только те транзакции, временной промежуток которых
-                 //удовлетворяет нашему условию
-                if( currentDate < finalDate){
+                //удовлетворяет нашему условию
+                if (currentDate < finalDate) {
                     transactionBeforeDate.add(transaction)
                 }
                 else return console.log("Некоректо введены значения даты")
             }
         }
         return transactionBeforeDate;
-        
+
     }
     /**
      * @description озвращает транзакцию по ее уникальному идентификатору.
      * @param {int} id - id искомой транзакции
      * @returns {object} - взвращает транзакцию
      */
-    findTransactionById(id){
-        return this.parsedData[id-1]; 
+    findTransactionById(id) {
+        return this.parsedData[id - 1];
     }
     /**
      * @description Возвращает новый массив, содержащий только описания транзакций.
      * @returns {array} - массв описаний транзакций
      */
-    mapTransactionDescriptions(){
+    mapTransactionDescriptions() {
         const desciptionArray = new Set();
         if (Array.isArray(this.parsedData) && this.parsedData.length > 0) {
             for (const transaction of this.parsedData) {
                 desciptionArray.push(transaction.transaction_description)
-                
+
             }
         }
         return desciptionArray;
     }
-    
+
 
 
 }
@@ -443,6 +445,6 @@ const transactions = new TransactionAnalyzer(filePath)
 // Некоторые заметки - неважная информация
 // --запись
 // Преобразование объекта JavaScript в JSON-строку
-//const updatedFileData = JSON.stringify(transactions, null, 2); 
+//const updatedFileData = JSON.stringify(transactions, null, 2);
 //Запись обновленной JSON-строки обратно в файл
 //fs.writeFileSync(filePath, updatedFileData, 'utf-8');
